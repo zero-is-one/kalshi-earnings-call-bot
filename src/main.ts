@@ -221,7 +221,7 @@ async function main() {
     }
   }
 
-  console.log("Completed processing all earnings calls");
+  console.log("------Completed processing all earnings calls");
 }
 
 main();
