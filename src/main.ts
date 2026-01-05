@@ -43,6 +43,13 @@ async function main() {
 
     try {
       const info = await getEarningsCallMeta(event);
+      // remove any existing entry for this event ticker
+      const existingIndex = earningsMetaDb.findIndex(
+        (e) => e.eventTicker === event.event_ticker
+      );
+      if (existingIndex !== -1) {
+        earningsMetaDb.splice(existingIndex, 1);
+      }
       earningsMetaDb.push(info);
       console.log(
         `Retreived -> ${info.companyName} (${info.stockTicker}) will have call on ${
