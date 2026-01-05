@@ -15,6 +15,7 @@
     "reactive-json-file": "^2.0.0"
   },
   "devDependencies": {
+    "@types/node": "^24.10.1",
     "prettier": "^3.6.2"
   }
 }

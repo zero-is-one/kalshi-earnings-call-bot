@@ -4,7 +4,7 @@ const ai = new GoogleGenAI({
   apiKey: "AIzaSyDur_L7-GU3E409JGSh_3NvsFOJcYglRxM",
 });
 
-export async function getEarningsCallInfo(
+export async function getEarningsCallMeta(
   event: SeriesEvent
 ): Promise<EarningsInfo> {
   const groundingTool = {
@@ -16,7 +16,7 @@ export async function getEarningsCallInfo(
   };
 
   const prompt = `
-Extract the company name from the sentence below and then search for next scheduled earnings-call date. 
+Extract the company name from the sentence below and then search for next scheduled earnings-call date and stock ticker. 
 The date must be returned in ISO 8601 format (YYYY-MM-DD). 
 
 If the earnings-call date cannot be determined, is postponed, or is otherwise unavailable, return an 'error' field with a short explanation.
@@ -25,9 +25,10 @@ If the earnings-call date cannot be determined, is postponed, or is otherwise un
 Respond with a JSON object only — no code blocks, no backticks. Respond only in JSON with this structure:
 
 {
-  "companyName": "<company>",
-  "earningsCallDate": "<YYYY-MM-DD or null>",
-  "error": "<explanation or null>"
+"companyName": "<company>",
+"stockTicker": "<ticker symbol>",
+"earningsCallDate": "<YYYY-MM-DD or null>",
+"error": "<explanation or null>"
 }
 
 Sentence: "${event.event_title}"

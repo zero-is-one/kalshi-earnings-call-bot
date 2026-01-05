@@ -32,6 +32,7 @@ type EarningsInfo = {
   earningsCallDate?: string | null;
   error?: string | null;
   eventTicker?: string;
+  stockTicker?: string | null;
 };
 
 type EventRecord = {

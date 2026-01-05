@@ -138,3 +138,5 @@ kalshi-config.json
 # ignore contents of users folder
 src/users/*
 !src/users/.gitkeep
+
+# ignore all folders in ./data

@@ -1,4 +1,4 @@
-export async function getSearchSeries({ minVolume = 5000 } = {}): Promise<
+export async function getEarningsCallEvents({ minVolume = 5000 } = {}): Promise<
   SeriesEvent[]
 > {
   const response = await fetch(

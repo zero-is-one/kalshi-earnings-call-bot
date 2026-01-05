@@ -1,30 +1,32 @@
-import {
-  Configuration,
-  PortfolioApi,
-  EventsApi,
-  SeriesApi,
-} from "kalshi-typescript";
-import kalshiConfig from "../kalshi-config.json" with { type: "json" };
-import { getEarningsCallInfo } from "./ai.ts";
+import * as fs from "fs";
 import { openJson } from "reactive-json-file";
-import { getSearchSeries } from "./search.ts";
+import { getEarningsCallMeta } from "./getEarningsCallMeta.ts";
+import { getEarningsCallEvents } from "./getEarningsCallEvents.ts";
+import { getEarningsCallTranscript } from "./getEarningsCallTranscript.ts";
+import { getEarningsCallQuarters } from "./getEarningsCallQuarters.ts";
+import { getPromptResponse } from "./getPromptResponse.ts";
+import kalshiConfig from "../kalshi-config.json" with { type: "json" };
+import { KalshiApi } from "../kalshi-api/index.ts";
+import { delay } from "./utils.ts";
 
-const config = new Configuration(kalshiConfig);
-const portfolioApi = new PortfolioApi(config);
+export const kalshiAPI = KalshiApi(kalshiConfig);
 
-const earningsMetaDb = openJson<EarningsInfo[]>("./earningsMetaDb.json");
+const earningsMetaDb = openJson<EarningsInfo[]>("./data/earningsMetaDb.json");
+const eventHistoryDb = openJson<string[]>("./data/eventHistoryDb.json");
 
 console.log("Starting Kalshi Earnings Call Bot");
 
 async function main() {
-  const balance = await portfolioApi.getBalance();
-  console.log(`Balance: $${(balance.data.balance || 0) / 100}`);
+  console.log("Searching for upcoming earnings calls...");
 
-  const earningCallEvents = await getSearchSeries({
-    minVolume: 10000,
+  const earningCallEvents = await getEarningsCallEvents({
+    minVolume: 5000,
   });
 
   console.log(`Found ${earningCallEvents.length} upcoming earnings calls.`);
+  for (const event of earningCallEvents) {
+    console.log(`- ${event.event_title} (Volume: ${event.total_volume})`);
+  }
 
   console.log("Gathering earnings call info via AI...");
   for (const event of earningCallEvents) {
@@ -34,43 +36,192 @@ async function main() {
 
     console.log(`Getting meta for event: ${event.event_title}`);
 
-    if (earningsMeta) {
+    if (earningsMeta && earningsMeta.earningsCallDate) {
       console.log(`-> Already processed, skipping.`);
       continue;
     }
 
-    const info = await getEarningsCallInfo(event);
-    earningsMetaDb.push(info);
-    console.log(
-      `Retreived -> ${info.companyName} : ${
-        info.earningsCallDate || info.error
-      }`
-    );
+    try {
+      const info = await getEarningsCallMeta(event);
+      earningsMetaDb.push(info);
+      console.log(
+        `Retreived -> ${info.companyName} (${info.stockTicker}) will have call on ${
+          info.earningsCallDate || info.error
+        }`
+      );
+    } catch (e) {
+      console.error("Error getting earnings call meta:", e);
+    }
 
-    // to avoid rate limits
-    //console.log(info);
-    await delay(3000);
+    await delay(1000);
   }
 
-  // console.log(
-  //   db.events
-  //     .sort((a, b) => {
-  //       const dateA = a.earningsMeta.earningsCallDate
-  //         ? new Date(a.earningsMeta.earningsCallDate).getTime()
-  //         : 0;
-  //       const dateB = b.earningsMeta.earningsCallDate
-  //         ? new Date(b.earningsMeta.earningsCallDate).getTime()
-  //         : 0;
-  //       return dateA - dateB;
-  //     })
-  //     .map(
-  //       (e) =>
-  //         `${e.apiEvent.event_title} - ${e.earningsMeta.companyName} : ${e.earningsMeta.earningsCallDate || e.earningsMeta.error}`
-  //     )
-  //     .join("\n")
-  // );
+  console.log("Active earnings call meta:");
+  const activeEarningsMeta = earningsMetaDb
+    .filter((e) =>
+      earningCallEvents.some((ev) => ev.event_ticker === e.eventTicker)
+    )
+
+    .sort((a, b) => {
+      const dateA = a.earningsCallDate ? new Date(a.earningsCallDate) : null;
+      const dateB = b.earningsCallDate ? new Date(b.earningsCallDate) : null;
+
+      if (dateA && dateB) {
+        return dateA.getTime() - dateB.getTime();
+      } else if (dateA) {
+        return -1;
+      } else if (dateB) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+
+  // Filter for earnings calls happening today
+  const todaysEarningCalls = activeEarningsMeta.filter(
+    (e) => e.earningsCallDate === new Date().toISOString().split("T")[0]
+  );
+
+  console.log(
+    `Found ${todaysEarningCalls.length} earnings calls happening today:`
+  );
+  for (const call of todaysEarningCalls) {
+    console.log(`- ${call.companyName} (${call.stockTicker})`);
+  }
+
+  for (const { stockTicker, eventTicker } of todaysEarningCalls) {
+    eventHistoryDb.push(eventTicker || "");
+
+    console.log(`Getting quarters for ticker: ${stockTicker}`);
+    // create folder for the ticker if it doesn't exist
+    const folderPath = `./data/${eventTicker}`;
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath);
+    }
+
+    const event = await fetch(
+      `https://api.elections.kalshi.com/trade-api/v2/events/${eventTicker}`
+    );
+
+    // save to file for debugging
+    const eventData = await event.json();
+    fs.writeFileSync(
+      `${folderPath}/${stockTicker}_event.json`,
+      JSON.stringify(eventData, null, 2)
+    );
+
+    const quarters = await getEarningsCallQuarters({
+      ticker: stockTicker!,
+    });
+
+    console.log(`Quarters for ${stockTicker}:`, quarters);
+
+    if (quarters.length < 3) {
+      console.log(
+        `No quarters found for ticker: ${stockTicker}, skipping transcript fetch.`
+      );
+    }
+
+    const transcripts = [];
+    for (const quarter of quarters.slice(0, 3)) {
+      console.log(
+        `Getting transcript for ${stockTicker} - ${quarter.year} Q${quarter.quarter}`
+      );
+      try {
+        const transcript = await getEarningsCallTranscript({
+          ticker: stockTicker!,
+          year: quarter.year,
+          quarter: quarter.quarter,
+        });
+        transcripts.push({ quarter, transcript });
+        console.log(
+          `Retreived Transcript of length ${transcript.length} characters.`
+        );
+
+        fs.writeFileSync(
+          `${folderPath}/${stockTicker}_${quarter.year}_Q${quarter.quarter}.txt`,
+          transcript
+        );
+      } catch (e) {
+        console.error(
+          `Error fetching transcript for ${stockTicker} - ${quarter.year} Q${quarter.quarter}:`,
+          e
+        );
+      }
+      await delay(2000);
+    }
+
+    if (transcripts.length < 3) {
+      console.log(
+        `No transcripts found for stock ticker: ${stockTicker}, skipping further processing.`
+      );
+      continue;
+    }
+
+    const promptText = fs.readFileSync("./prompt.md", "utf-8");
+
+    const fullPromptText = promptText
+      .replace(
+        "[PAST_TRANSCRIPTS]",
+        transcripts
+          .map(
+            (t) =>
+              `Quarter: ${t.quarter.year} Q${t.quarter.quarter}\nTranscript:\n${t.transcript}`
+          )
+          .join("\n\n")
+      )
+      .replace("[KALSHI_EVENT_JSON]", JSON.stringify(eventData, null, 2))
+      .replace("[COMPANY]", stockTicker!)
+      .replace("[AMOUNT_TO_SPEND]", "$10");
+
+    // save the prompt to a file for debugging
+    fs.writeFileSync(`${folderPath}/prompt.md`, fullPromptText);
+
+    console.log(
+      `Generated prompt for ${stockTicker}, length: ${fullPromptText.length} characters.`
+    );
+
+    console.log(`Getting prompt for ${stockTicker}...`);
+    const orders = await getPromptResponse(
+      fullPromptText,
+      `${folderPath}/prompt_response.txt`
+    );
+
+    // save the response to a file for debugging
+
+    console.log("Done processing for, Orders:", orders);
+
+    if (!Array.isArray(orders) || orders.length === 0) {
+      console.log(`No orders generated, skipping.`, orders);
+      continue;
+    }
+
+    for (const order of orders) {
+      if (!order.marketTicker || !order.side || !order.contractCount) {
+        console.log(`Invalid order data, skipping.`, order);
+        continue;
+      }
+
+      console.log(`Placing order:`, order);
+      try {
+        const response = await kalshiAPI.order({
+          ticker: order.marketTicker,
+          side: order.side as "yes" | "no",
+          action: "buy",
+          count: Number(order.contractCount),
+          type: "market",
+          [`${order.side}_price`]: 90,
+        });
+        console.log(`Order response for ${stockTicker}:`, response);
+      } catch (e) {
+        console.error(`Error placing order for ${stockTicker}:`, e);
+      }
+    }
+  }
+
+  console.log("Completed processing all earnings calls");
 }
 
 main();
 
-const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+setInterval(main, 1000 * 60 * 60 * 6); // Run every 6 hours
