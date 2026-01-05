@@ -17,5 +17,9 @@
   "devDependencies": {
     "@types/node": "^24.10.1",
     "prettier": "^3.6.2"
-  }
+  },
+  "engines": {
+    "node": "24.7.0"
+  },
+  "nodeVersion": "24.7.0"
 }
