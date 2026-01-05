@@ -236,4 +236,4 @@ async function main() {
 
 main();
 
-setInterval(main, 1000 * 60 * 60 * 6); // Run every 6 hours
+setInterval(main, 1000 * 60 * 60 * 3); // Run every 3 hours
