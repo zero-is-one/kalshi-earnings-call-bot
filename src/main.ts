@@ -56,8 +56,8 @@ async function main() {
     await delay(1000);
   }
 
-  console.log("Active earnings call meta:");
   const activeEarningsMeta = earningsMetaDb
+    // Filter for earnings calls that are in the future and not already processed
     .filter((e) =>
       earningCallEvents.some((ev) => ev.event_ticker === e.eventTicker)
     )
@@ -76,6 +76,8 @@ async function main() {
         return 0;
       }
     });
+
+  console.log("Active earnings call meta:", activeEarningsMeta);
 
   // Filter for earnings calls happening today
   const todaysEarningCalls = activeEarningsMeta.filter(
