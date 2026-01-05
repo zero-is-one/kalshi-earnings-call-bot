@@ -1,1 +1,121 @@
-[{"companyName":"Electronic Arts","stockTicker":"EA","earningsCallDate":"2026-02-03","error":null,"eventTicker":"KXEARNINGSMENTIONEA-25OCT28"},{"companyName":"Home Depot","stockTicker":"HD","earningsCallDate":"2025-11-18","error":null,"eventTicker":"KXEARNINGSMENTIONHD-26MAR31"},{"companyName":"Walmart","stockTicker":"WMT","earningsCallDate":"2025-11-20","error":null,"eventTicker":"KXEARNINGSMENTIONWMT-26MAR31"},{"companyName":"NVIDIA","stockTicker":"NVDA","earningsCallDate":"2025-11-19","error":null,"eventTicker":"KXEARNINGSMENTIONNVDA-26MAR31"},{"companyName":"Dell Technologies","stockTicker":"DELL","earningsCallDate":"2025-11-25","error":null,"eventTicker":"KXEARNINGSMENTIONDELL-26MAR31"},{"companyName":"Kroger","stockTicker":"KR","earningsCallDate":"2025-12-04","error":null,"eventTicker":"KXEARNINGSMENTIONKR-26MAR31"},{"companyName":"Ulta Beauty","stockTicker":"ULTA","earningsCallDate":"2025-12-04","error":null,"eventTicker":"KXEARNINGSMENTIONULTA-26MAR31"},{"companyName":"Costco","stockTicker":"COST","earningsCallDate":"2025-12-11","error":null,"eventTicker":"KXEARNINGSMENTIONCOST-26MAR31"},{"companyName":"FedEx","stockTicker":"FDX","earningsCallDate":"2025-12-18","error":null,"eventTicker":"KXEARNINGSMENTIONFDX-26MAR31"},{"companyName":"Hewlett Packard","stockTicker":"HPQ","earningsCallDate":"2026-02-26","error":null,"eventTicker":"KXEARNINGSMENTIONHPE-26MAR31"},{"companyName":"Adobe","stockTicker":"ADBE","earningsCallDate":"2025-12-10","error":null,"eventTicker":"KXEARNINGSMENTIONADBE-26MAR31"},{"companyName":"JPMorgan Chase & Co","stockTicker":"JPM","earningsCallDate":"2026-01-13","error":null,"eventTicker":"KXEARNINGSMENTIONJPM-26JUN30"},{"companyName":"Nebius Group N.V.","stockTicker":"NBIS","earningsCallDate":"2026-02-18","error":null,"eventTicker":"KXEARNINGSMENTIONNBIS-26JUN30"},{"companyName":"BlackRock","stockTicker":"BLK","earningsCallDate":"2026-01-15","error":null,"eventTicker":"KXEARNINGSMENTIONBLK-26JUN30"},{"companyName":"Google","stockTicker":"GOOGL","earningsCallDate":"2026-02-03","error":null,"eventTicker":"KXEARNINGSMENTIONGOOGL-26JUN30"},{"companyName":"Albertsons","stockTicker":"ACI","earningsCallDate":"2026-01-07","error":null,"eventTicker":"KXEARNINGSMENTIONACI-26JUN30"},{"companyName":"Delta Air Lines","stockTicker":"DAL","earningsCallDate":"2026-01-13","error":null,"eventTicker":"KXEARNINGSMENTIONDAL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":null,"error":"Next earnings call date is unconfirmed and varies across sources (some predict Feb 3, 2026, others Feb 10 or 11, 2026).","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":null,"error":"Multiple conflicting dates were found for the next earnings call, and some are unconfirmed. Dates found include February 3, 2026, February 10, 2026, and February 11, 2026.","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":"2026-02-03","error":"The provided earnings call date is a forecasted date and is not yet officially confirmed by the company.","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":"2026-02-03","error":null,"eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":"2026-02-03","error":"The next earnings call date is forecasted/unconfirmed. The date provided (2026-02-03) is based on historical reporting trends and analyst expectations, but has not been officially confirmed by the company.","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":null,"error":"Next earnings call date is unconfirmed and varies across sources (some predict Feb 3, 2026, others Feb 10 or 11, 2026).","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":null,"error":"The next earnings call date is unconfirmed or conflicting information is available from different sources. Forecasted dates include Feb 3, 2026, Feb 10, 2026, and Feb 11, 2026.","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":null,"error":"The next earnings call date is unconfirmed by the company.","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":"2026-02-03","error":"The next earnings call date is currently unconfirmed and is a forecasted date.","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":"2026-02-03","error":null,"eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":null,"error":"Next scheduled earnings call date is unconfirmed or conflicting across sources.","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":null,"error":"Next earnings call date is unconfirmed and conflicting across sources. Some sources indicate February 3, 2026, while others suggest February 10 or 11, 2026.","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":"2026-02-03","error":"The earnings call date is forecasted and unconfirmed by the company.","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":null,"error":"The next earnings call date for PayPal is unconfirmed and has conflicting dates reported across different sources.","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":null,"error":"Next earnings call date is unconfirmed and conflicting dates are provided across sources (Feb 3, Feb 10, Feb 11, 2026).","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":null,"error":"The next earnings call date is currently unconfirmed or forecasted by various sources and not definitively determined by the company.","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":null,"error":"The next earnings call date is unconfirmed and there are conflicting dates reported across sources.","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":null,"error":"Next earnings call date is unconfirmed.","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":null,"error":"The next earnings-call date for PayPal is unconfirmed and conflicting dates (February 3, 2026, February 10, 2026, and February 11, 2026) are reported across various sources.","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":null,"error":"Next earnings call date is unconfirmed or conflicting across sources. Forecasted dates vary between February 3, 2026, February 10, 2026, and February 11, 2026.","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":null,"error":"Next earnings call date is currently unconfirmed by the company, though February 3, 2026, is a frequently forecasted date.","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"},{"companyName":"PayPal","stockTicker":"PYPL","earningsCallDate":null,"error":"Next earnings call date is unconfirmed or conflicting information is available. Some sources suggest February 3, 2026, while others indicate February 10, 2026 or February 11, 2026.","eventTicker":"KXEARNINGSMENTIONPYPL-26JUN30"}]
+[
+  {
+    "companyName": "Electronic Arts",
+    "stockTicker": "EA",
+    "earningsCallDate": "2026-02-03",
+    "error": null,
+    "eventTicker": "KXEARNINGSMENTIONEA-25OCT28"
+  },
+  {
+    "companyName": "Home Depot",
+    "stockTicker": "HD",
+    "earningsCallDate": "2025-11-18",
+    "error": null,
+    "eventTicker": "KXEARNINGSMENTIONHD-26MAR31"
+  },
+  {
+    "companyName": "Walmart",
+    "stockTicker": "WMT",
+    "earningsCallDate": "2025-11-20",
+    "error": null,
+    "eventTicker": "KXEARNINGSMENTIONWMT-26MAR31"
+  },
+  {
+    "companyName": "NVIDIA",
+    "stockTicker": "NVDA",
+    "earningsCallDate": "2025-11-19",
+    "error": null,
+    "eventTicker": "KXEARNINGSMENTIONNVDA-26MAR31"
+  },
+  {
+    "companyName": "Dell Technologies",
+    "stockTicker": "DELL",
+    "earningsCallDate": "2025-11-25",
+    "error": null,
+    "eventTicker": "KXEARNINGSMENTIONDELL-26MAR31"
+  },
+  {
+    "companyName": "Kroger",
+    "stockTicker": "KR",
+    "earningsCallDate": "2025-12-04",
+    "error": null,
+    "eventTicker": "KXEARNINGSMENTIONKR-26MAR31"
+  },
+  {
+    "companyName": "Ulta Beauty",
+    "stockTicker": "ULTA",
+    "earningsCallDate": "2025-12-04",
+    "error": null,
+    "eventTicker": "KXEARNINGSMENTIONULTA-26MAR31"
+  },
+  {
+    "companyName": "Costco",
+    "stockTicker": "COST",
+    "earningsCallDate": "2025-12-11",
+    "error": null,
+    "eventTicker": "KXEARNINGSMENTIONCOST-26MAR31"
+  },
+  {
+    "companyName": "FedEx",
+    "stockTicker": "FDX",
+    "earningsCallDate": "2025-12-18",
+    "error": null,
+    "eventTicker": "KXEARNINGSMENTIONFDX-26MAR31"
+  },
+  {
+    "companyName": "Hewlett Packard",
+    "stockTicker": "HPQ",
+    "earningsCallDate": "2026-02-26",
+    "error": null,
+    "eventTicker": "KXEARNINGSMENTIONHPE-26MAR31"
+  },
+  {
+    "companyName": "Adobe",
+    "stockTicker": "ADBE",
+    "earningsCallDate": "2025-12-10",
+    "error": null,
+    "eventTicker": "KXEARNINGSMENTIONADBE-26MAR31"
+  },
+  {
+    "companyName": "JPMorgan Chase & Co",
+    "stockTicker": "JPM",
+    "earningsCallDate": "2026-01-13",
+    "error": null,
+    "eventTicker": "KXEARNINGSMENTIONJPM-26JUN30"
+  },
+  {
+    "companyName": "Nebius Group N.V.",
+    "stockTicker": "NBIS",
+    "earningsCallDate": "2026-02-18",
+    "error": null,
+    "eventTicker": "KXEARNINGSMENTIONNBIS-26JUN30"
+  },
+  {
+    "companyName": "BlackRock",
+    "stockTicker": "BLK",
+    "earningsCallDate": "2026-01-15",
+    "error": null,
+    "eventTicker": "KXEARNINGSMENTIONBLK-26JUN30"
+  },
+  {
+    "companyName": "Google",
+    "stockTicker": "GOOGL",
+    "earningsCallDate": "2026-02-03",
+    "error": null,
+    "eventTicker": "KXEARNINGSMENTIONGOOGL-26JUN30"
+  },
+  {
+    "companyName": "Albertsons",
+    "stockTicker": "ACI",
+    "earningsCallDate": "2026-01-07",
+    "error": null,
+    "eventTicker": "KXEARNINGSMENTIONACI-26JUN30"
+  },
+  {
+    "companyName": "Delta Air Lines",
+    "stockTicker": "DAL",
+    "earningsCallDate": "2026-01-13",
+    "error": null,
+    "eventTicker": "KXEARNINGSMENTIONDAL-26JUN30"
+  }
+]
