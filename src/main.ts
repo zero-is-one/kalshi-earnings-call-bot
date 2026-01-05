@@ -9,6 +9,8 @@ import kalshiConfig from "../kalshi-config.json" with { type: "json" };
 import { KalshiApi } from "../kalshi-api/index.ts";
 import { delay } from "./utils.ts";
 
+// billing: https://console.cloud.google.com/billing/0172C5-246326-580681
+
 export const kalshiAPI = KalshiApi(kalshiConfig);
 
 const earningsMetaDb = openJson<EarningsInfo[]>("./data/earningsMetaDb.json");

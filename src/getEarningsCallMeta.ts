@@ -1,7 +1,8 @@
 import { GoogleGenAI } from "@google/genai";
+import googleApiConfig from "../google-ai-config.json" with { type: "json" };
 
 const ai = new GoogleGenAI({
-  apiKey: "AIzaSyDur_L7-GU3E409JGSh_3NvsFOJcYglRxM",
+  apiKey: googleApiConfig.apiKey,
 });
 
 export async function getEarningsCallMeta(
