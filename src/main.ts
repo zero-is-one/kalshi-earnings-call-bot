@@ -221,6 +221,9 @@ async function main() {
 
     console.log(`Finished processing event: ${event.event_title}`);
   }
+
+  console.log(`Last run at: ${new Date().toISOString()}`);
+  console.log("----------------------------------------------------");
 }
 
 setInterval(
