@@ -26,13 +26,18 @@ export function KalshiApi(config: KalshiConfig) {
   async function request<T = any>(
     method: string,
     path: string,
-    body: any = null
+    body: any = null,
   ): Promise<StandardResponse<T>> {
     // Wait for rate limiter slot
     await globalRateLimiter.waitForSlot();
 
     const timestamp = Date.now().toString(); // milliseconds
-    const signature = createSignature(privateKeyPem, timestamp, method, path);
+    const signature = createSignature(
+      privateKeyPem.replaceAll("\\n", "\n"),
+      timestamp,
+      method,
+      path,
+    );
 
     const headers: Record<string, string> = {
       "KALSHI-ACCESS-KEY": apiKey,
@@ -130,7 +135,7 @@ export function KalshiApi(config: KalshiConfig) {
   };
 
   const getSocialLeaderboard = async (
-    leaderboardRequest: KalshiLeaderboardRequest
+    leaderboardRequest: KalshiLeaderboardRequest,
   ) => {
     let path = `/v1/social/leaderboard?metric_name=${leaderboardRequest.metricName}&limit=${leaderboardRequest.limit}`;
 
