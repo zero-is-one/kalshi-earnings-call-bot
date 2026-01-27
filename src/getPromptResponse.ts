@@ -6,19 +6,21 @@ const ai = new GoogleGenAI({
   apiKey: googleApiConfig.apiKey,
 });
 
+export type PromptResponse = {
+  orders: {
+    market_id: string;
+    word: string;
+    contract_count: number;
+    estimated_cost: number;
+    reasoning: string;
+  }[];
+  total_spend: number;
+  remaining_budget: number;
+};
+
 export async function getPromptResponse(
   prompt: string,
-  debugFile: string
-): Promise<
-  | {
-      word: string;
-      eventTicker: string;
-      marketTicker: string;
-      side: string;
-      contractCount: number;
-    }[]
-  | { error: string }
-> {
+): Promise<PromptResponse | { error: string }> {
   const configOpts = {
     tools: [],
   };
@@ -33,15 +35,16 @@ export async function getPromptResponse(
     return { error: "No response received" };
   }
 
-  fs.writeFileSync(debugFile, response.text || "No response");
+  console.log("response.text:", response.text);
 
   try {
-    const jsonStr = response.text.split("```json")[1]?.split("```")[0];
+    const jsonStr = response.text.replace("```json", "").replace("```", "");
     if (!jsonStr) {
       return { error: "No JSON response found" };
     }
     return JSON.parse(jsonStr.trim());
   } catch (e) {
+    console.log("Error parsing JSON response:", e);
     return { error: "Invalid JSON response" };
   }
 }

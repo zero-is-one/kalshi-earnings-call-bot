@@ -1,22 +1,20 @@
 import * as fs from "fs";
-import { openJson } from "reactive-json-file";
 import { getEarningsCallMeta } from "./getEarningsCallMeta.ts";
 import { getEarningsCallEvents } from "./getEarningsCallEvents.ts";
-import { getEarningsCallTranscript } from "./getEarningsCallTranscript.ts";
-import { getEarningsCallQuarters } from "./getEarningsCallQuarters.ts";
-import { getPromptResponse } from "./getPromptResponse.ts";
 import kalshiConfig from "../kalshi-config.json" with { type: "json" };
 import { KalshiApi } from "../kalshi-api/index.ts";
 import { delay } from "./utils.ts";
-
+import type { EarningsInfo } from "./types.ts";
+import { getPastTranscripts } from "./getPastTranscripts.ts";
+import { getPromptResponse } from "./getPromptResponse.ts";
+import type { PromptResponse } from "./getPromptResponse.ts";
 // billing: https://console.cloud.google.com/billing/0172C5-246326-580681
 
 export const kalshiAPI = KalshiApi(kalshiConfig);
 
-const earningsMetaDb = openJson<EarningsInfo[]>("./data/earningsMetaDb.json");
-const eventHistoryDb = openJson<string[]>("./data/eventHistoryDb.json");
+console.log("Starting Kalshi Earnings Call Bot Started.");
 
-console.log("Starting Kalshi Earnings Call Bot");
+const pastProcessedEventTickers: string[] = [];
 
 async function main() {
   console.log("Searching for upcoming earnings calls...");
@@ -30,212 +28,209 @@ async function main() {
     console.log(`- ${event.event_title} (Volume: ${event.total_volume})`);
   }
 
-  console.log("Gathering earnings call info via AI...");
   for (const event of earningCallEvents) {
-    const earningsMeta = earningsMetaDb.find(
-      (e) => e.eventTicker === event.event_ticker
-    );
+    console.log(`Processing event: ${event.event_title}`);
 
-    console.log(`Getting meta for event: ${event.event_title}`);
-
-    if (earningsMeta && earningsMeta.earningsCallDate) {
-      console.log(`-> Already processed, skipping.`);
+    if (pastProcessedEventTickers.includes(event.event_ticker)) {
+      console.log(
+        `Skipping event ${event.event_title} as it has been processed before.`,
+      );
       continue;
     }
 
-    try {
-      const info = await getEarningsCallMeta(event);
-      // remove any existing entry for this event ticker
-      const existingIndex = earningsMetaDb.findIndex(
-        (e) => e.eventTicker === event.event_ticker
-      );
-      if (existingIndex !== -1) {
-        earningsMetaDb.splice(existingIndex, 1);
-      }
-      earningsMetaDb.push(info);
+    if (event.total_volume < 10000) {
       console.log(
-        `Retreived -> ${info.companyName} (${info.stockTicker}) will have call on ${
-          info.earningsCallDate || info.error
-        }`
+        `Skipping event ${event.event_title} due to low volume (${event.total_volume}).`,
       );
-    } catch (e) {
-      console.error("Error getting earnings call meta:", e);
+      continue;
     }
 
-    await delay(1000);
-  }
+    const eventDir = `data/${event.event_ticker}`;
 
-  const activeEarningsMeta = earningsMetaDb
-    // Filter for earnings calls that are in the future and not already processed
-    .filter((e) =>
-      earningCallEvents.some((ev) => ev.event_ticker === e.eventTicker)
-    )
-
-    .sort((a, b) => {
-      const dateA = a.earningsCallDate ? new Date(a.earningsCallDate) : null;
-      const dateB = b.earningsCallDate ? new Date(b.earningsCallDate) : null;
-
-      if (dateA && dateB) {
-        return dateA.getTime() - dateB.getTime();
-      } else if (dateA) {
-        return -1;
-      } else if (dateB) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
-
-  console.log("Active earnings call meta:", activeEarningsMeta);
-
-  // Filter for earnings calls happening today
-  const todaysEarningCalls = activeEarningsMeta.filter(
-    (e) => e.earningsCallDate === new Date().toISOString().split("T")[0]
-  );
-
-  console.log(
-    `Found ${todaysEarningCalls.length} earnings calls happening today:`
-  );
-  for (const call of todaysEarningCalls) {
-    console.log(`- ${call.companyName} (${call.stockTicker})`);
-  }
-
-  for (const { stockTicker, eventTicker } of todaysEarningCalls) {
-    eventHistoryDb.push(eventTicker || "");
-
-    console.log(`Getting quarters for ticker: ${stockTicker}`);
-    // create folder for the ticker if it doesn't exist
-    const folderPath = `./data/${eventTicker}`;
-    if (!fs.existsSync(folderPath)) {
-      fs.mkdirSync(folderPath);
+    if (!fs.existsSync(eventDir)) {
+      fs.mkdirSync(eventDir, { recursive: true });
     }
 
-    const event = await fetch(
-      `https://api.elections.kalshi.com/trade-api/v2/events/${eventTicker}`
-    );
+    fs.writeFileSync(`${eventDir}/event.json`, JSON.stringify(event, null, 2));
 
-    // save to file for debugging
-    const eventData = await event.json();
+    const metaPath = `${eventDir}/meta.json`;
+    let meta: EarningsInfo | undefined;
+
+    if (!fs.existsSync(metaPath)) {
+      console.log(`Fetching metadata for event: ${event.event_title}`);
+      meta = await getEarningsCallMeta(event);
+      fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2));
+      await delay(1000);
+    } else {
+      meta = JSON.parse(fs.readFileSync(metaPath, "utf-8")) as EarningsInfo;
+    }
+
+    if (!meta) {
+      console.log(
+        `Skipping event ${event.event_title} due to missing metadata.`,
+      );
+      continue;
+    }
+
+    if (meta?.error) {
+      console.log(
+        `Skipping event ${event.event_title} due to metadata error: ${meta.error}`,
+      );
+      continue;
+    }
+
+    if (!meta.earningsCallDate) {
+      console.log(
+        `Skipping event ${event.event_title} due to missing meta or earnings call date.`,
+      );
+      continue;
+    }
+
+    // Skip if not one day before meta.earningsCallDate (date is string in format YYYY-MM-DD)
+    const [year, month, day] = meta.earningsCallDate.split("-").map(Number);
+    const earningsCallDate = new Date(year, month - 1, day);
+    const oneDayBeforeEarningsCall = new Date(earningsCallDate);
+    oneDayBeforeEarningsCall.setDate(earningsCallDate.getDate() - 1);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (today.getTime() !== oneDayBeforeEarningsCall.getTime()) {
+      console.log(
+        `Skipping event ${event.event_title} as today is not one day before the earnings call date (${meta.earningsCallDate}).`,
+      );
+      continue;
+    }
+
+    pastProcessedEventTickers.push(event.event_ticker);
+
+    console.log(`Fetching past transcripts for ${meta.stockTicker}...`);
+
+    const transcripts = await getPastTranscripts(meta.stockTicker!);
+
     fs.writeFileSync(
-      `${folderPath}/${stockTicker}_event.json`,
-      JSON.stringify(eventData, null, 2)
+      `${eventDir}/transcripts.json`,
+      JSON.stringify(transcripts, null, 2),
     );
 
-    const quarters = await getEarningsCallQuarters({
-      ticker: stockTicker!,
-    });
+    const promptTemplate = fs.readFileSync("./prompt.md", "utf-8");
 
-    console.log(`Quarters for ${stockTicker}:`, quarters);
+    const promptText = promptTemplate
+      .replace("{{BUDGET_AMOUNT}}", "$4.00")
+      .replace("{{COMPANY_NAME}}", meta.companyName || "Unknown Company")
+      .replace("{{STOCK_TICKER}}", meta.stockTicker || "UNKNOWN")
+      .replace("{{TRANSCRIPT_JSON}}", JSON.stringify(transcripts, null, 2))
+      .replace("{{EVENT_JSON}}", JSON.stringify(event, null, 2));
 
-    if (quarters.length < 3) {
-      console.log(
-        `No quarters found for ticker: ${stockTicker}, skipping transcript fetch.`
-      );
-    }
+    console.log(`Generating prompt response for event: ${event.event_title}`);
 
-    const transcripts = [];
-    for (const quarter of quarters.slice(0, 3)) {
-      console.log(
-        `Getting transcript for ${stockTicker} - ${quarter.year} Q${quarter.quarter}`
-      );
-      try {
-        const transcript = await getEarningsCallTranscript({
-          ticker: stockTicker!,
-          year: quarter.year,
-          quarter: quarter.quarter,
-        });
-        transcripts.push({ quarter, transcript });
+    fs.writeFileSync(`${eventDir}/prompt.md`, promptText);
+
+    // get 3 response from getPromptResponse
+
+    const responses: PromptResponse[] = [];
+
+    while (responses.length < 4) {
+      const i = responses.length;
+      console.log(`Getting response ${i + 1} for event: ${event.event_title}`);
+      const response = await getPromptResponse(promptText);
+
+      if ("error" in response) {
         console.log(
-          `Retreived Transcript of length ${transcript.length} characters.`
+          `Error getting prompt response for event ${event.event_title}: ${response.error}`,
         );
-
-        fs.writeFileSync(
-          `${folderPath}/${stockTicker}_${quarter.year}_Q${quarter.quarter}.txt`,
-          transcript
-        );
-      } catch (e) {
-        console.error(
-          `Error fetching transcript for ${stockTicker} - ${quarter.year} Q${quarter.quarter}:`,
-          e
-        );
+        continue;
       }
-      await delay(2000);
-    }
 
-    if (transcripts.length < 3) {
-      console.log(
-        `No transcripts found for stock ticker: ${stockTicker}, skipping further processing.`
+      responses.push(response);
+      fs.writeFileSync(
+        `${eventDir}/response${i}.json`,
+        JSON.stringify(response, null, 2),
       );
-      continue;
     }
 
-    const promptText = fs.readFileSync("./prompt.md", "utf-8");
+    // average each word in responses' orders by market_id
 
-    const fullPromptText = promptText
-      .replace(
-        "[PAST_TRANSCRIPTS]",
-        transcripts
-          .map(
-            (t) =>
-              `Quarter: ${t.quarter.year} Q${t.quarter.quarter}\nTranscript:\n${t.transcript}`
-          )
-          .join("\n\n")
-      )
-      .replace("[KALSHI_EVENT_JSON]", JSON.stringify(eventData, null, 2))
-      .replace("[COMPANY]", stockTicker!)
-      .replace("[AMOUNT_TO_SPEND]", "$10");
+    const aggregatedOrders: Record<
+      string,
+      {
+        market_id: string;
+        word: string;
+        contract_count: number;
+        estimated_cost: number;
+        reasoning: string;
+      }
+    > = {};
 
-    // save the prompt to a file for debugging
-    fs.writeFileSync(`${folderPath}/prompt.md`, fullPromptText);
-
-    console.log(
-      `Generated prompt for ${stockTicker}, length: ${fullPromptText.length} characters.`
-    );
-
-    console.log(`Getting prompt for ${stockTicker}...`);
-    const orders = await getPromptResponse(
-      fullPromptText,
-      `${folderPath}/prompt_response.txt`
-    );
-
-    // save the response to a file for debugging
-
-    console.log("Done processing for, Orders:", orders);
-
-    if (!Array.isArray(orders) || orders.length === 0) {
-      console.log(`No orders generated, skipping.`, orders);
-      continue;
+    for (const response of responses) {
+      for (const order of response.orders) {
+        if (!aggregatedOrders[order.market_id]) {
+          aggregatedOrders[order.market_id] = {
+            market_id: order.market_id,
+            word: order.word,
+            contract_count: 0,
+            estimated_cost: 0,
+            reasoning: "",
+          };
+        }
+        aggregatedOrders[order.market_id].contract_count +=
+          order.contract_count;
+        aggregatedOrders[order.market_id].estimated_cost +=
+          order.estimated_cost;
+        aggregatedOrders[order.market_id].reasoning += order.reasoning + "; ";
+      }
     }
 
-    for (const order of orders) {
-      if (!order.marketTicker || !order.side || !order.contractCount) {
-        console.log(`Invalid order data, skipping.`, order);
+    // divide contract_count and estimated_cost by number of responses to get average
+    const numResponses = responses.length;
+    for (const market_id in aggregatedOrders) {
+      aggregatedOrders[market_id].contract_count = Math.round(
+        aggregatedOrders[market_id].contract_count / numResponses,
+      );
+      aggregatedOrders[market_id].estimated_cost =
+        aggregatedOrders[market_id].estimated_cost / numResponses;
+    }
+    fs.writeFileSync(
+      `${eventDir}/aggregated_orders.json`,
+      JSON.stringify(Object.values(aggregatedOrders), null, 2),
+    );
+
+    for (const order of Object.values(aggregatedOrders)) {
+      if (order.contract_count <= 1) {
+        console.log(
+          `Skipping order for market ${order.market_id} due to low contract count (${order.contract_count}).`,
+        );
         continue;
       }
 
       console.log(`Placing order:`, order);
+      const side = "yes";
       try {
         const response = await kalshiAPI.order({
-          ticker: order.marketTicker,
-          side: order.side as "yes" | "no",
+          ticker: order.market_id,
+          side: side as "yes" | "no",
           action: "buy",
-          count: Number(order.contractCount),
+          count: Number(order.contract_count),
           type: "market",
-          [`${order.side}_price`]: 90,
+          [`${side}_price`]: 95,
         });
-        console.log(`Order response for ${stockTicker}:`, response);
+        console.log(`Order response for ${order.market_id}:`, response);
       } catch (e) {
-        console.error(`Error placing order for ${stockTicker}:`, e);
+        console.error(`Error placing order for ${order.market_id}:`, e);
       }
     }
-  }
 
-  console.log(
-    "------Completed processing all earnings calls ",
-    new Date().toISOString().split("T")[0]
-  );
+    console.log(`Finished processing event: ${event.event_title}`);
+  }
 }
 
+setInterval(
+  () => {
+    try {
+      main();
+    } catch (e) {
+      console.error("Error in scheduled main execution:", e);
+    }
+  },
+  1000 * 60 * 60,
+); // Run every 6 hours
 main();
-
-setInterval(main, 1000 * 60 * 60 * 3); // Run every 3 hours

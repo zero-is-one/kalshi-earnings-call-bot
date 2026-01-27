@@ -140,3 +140,10 @@ src/users/*
 !src/users/.gitkeep
 
 # ignore all folders in ./data
+
+data/**/*
+!data/.gitkeep
+# ignore google ai config
+google-ai-config.json
+# ignore secrets
+secrets.json

@@ -1,12 +1,13 @@
 import { GoogleGenAI } from "@google/genai";
 import googleApiConfig from "../google-ai-config.json" with { type: "json" };
+import type { EarningsInfo, SeriesEvent } from "./types";
 
 const ai = new GoogleGenAI({
   apiKey: googleApiConfig.apiKey,
 });
 
 export async function getEarningsCallMeta(
-  event: SeriesEvent
+  event: SeriesEvent,
 ): Promise<EarningsInfo> {
   const groundingTool = {
     googleSearch: {},

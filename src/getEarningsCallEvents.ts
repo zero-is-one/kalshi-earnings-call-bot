@@ -1,3 +1,5 @@
+import type { SearchSeriesEventsData, SeriesEvent } from "./types.ts";
+
 export async function getEarningsCallEvents({ minVolume = 5000 } = {}): Promise<
   SeriesEvent[]
 > {
@@ -8,14 +10,14 @@ export async function getEarningsCallEvents({ minVolume = 5000 } = {}): Promise<
       "&status=open",
       "&category=Mentions",
       "&page_size=100",
-    ].join("")
+    ].join(""),
   );
   const status = response.status;
 
   if (status !== 200) {
     const errorText = await response.text();
     console.error(
-      `Failed to fetch trending Mentions series. Status: ${status}, Message: ${errorText}`
+      `Failed to fetch trending Mentions series. Status: ${status}, Message: ${errorText}`,
     );
     throw new Error("Failed to fetch trending Mentions series");
   }
@@ -26,7 +28,7 @@ export async function getEarningsCallEvents({ minVolume = 5000 } = {}): Promise<
   return (
     events
       .filter((event) =>
-        event.event_title.toLowerCase().includes("earnings call")
+        event.event_title.toLowerCase().includes("earnings call"),
       )
       // extract date from event_subtitle in the format 'On Nov 26, 2025'
       .map((event) => {

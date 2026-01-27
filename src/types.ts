@@ -1,4 +1,4 @@
-type SeriesEvent = {
+export type SeriesEvent = {
   series_ticker: string;
   series_title: string;
   event_ticker: string;
@@ -21,13 +21,13 @@ type SeriesEvent = {
   fee_multiplier: number;
 };
 
-type SearchSeriesEventsData = {
+export type SearchSeriesEventsData = {
   total_results_count: number;
   current_page: SeriesEvent[];
   next_cursor: string;
 };
 
-type EarningsInfo = {
+export type EarningsInfo = {
   companyName?: string | null;
   earningsCallDate?: string | null;
   error?: string | null;
@@ -35,11 +35,11 @@ type EarningsInfo = {
   stockTicker?: string | null;
 };
 
-type EventRecord = {
+export type EventRecord = {
   apiEvent: SeriesEvent;
   earningsMeta: EarningsInfo;
 };
 
-type JsonDatabase = {
+export type JsonDatabase = {
   events: EventRecord[];
 };
