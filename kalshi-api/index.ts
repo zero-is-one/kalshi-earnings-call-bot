@@ -32,12 +32,7 @@ export function KalshiApi(config: KalshiConfig) {
     await globalRateLimiter.waitForSlot();
 
     const timestamp = Date.now().toString(); // milliseconds
-    const signature = createSignature(
-      privateKeyPem.replaceAll("\\n", "\n"),
-      timestamp,
-      method,
-      path,
-    );
+    const signature = createSignature(privateKeyPem, timestamp, method, path);
 
     const headers: Record<string, string> = {
       "KALSHI-ACCESS-KEY": apiKey,
