@@ -14,7 +14,10 @@ export const kalshiAPI = KalshiApi(kalshiConfig);
 
 console.log("Starting Kalshi Earnings Call Bot Started.");
 
-const pastProcessedEventTickers: string[] = [];
+const pastProcessedEventTickers: string[] = [
+  "kxearningsmentiongoogl-26jun30",
+  "kxearningsmentionea-25oct28",
+];
 
 async function main() {
   console.log("Searching for upcoming earnings calls...");
@@ -31,7 +34,7 @@ async function main() {
   for (const event of earningCallEvents) {
     console.log(`Processing event: ${event.event_title}`);
 
-    if (pastProcessedEventTickers.includes(event.event_ticker)) {
+    if (pastProcessedEventTickers.includes(event.event_ticker.toLowerCase())) {
       console.log(
         `Skipping event ${event.event_title} as it has been processed before.`,
       );
@@ -101,7 +104,7 @@ async function main() {
       continue;
     }
 
-    pastProcessedEventTickers.push(event.event_ticker);
+    pastProcessedEventTickers.push(event.event_ticker.toLowerCase());
 
     console.log(`Fetching past transcripts for ${meta.stockTicker}...`);
 
@@ -198,6 +201,13 @@ async function main() {
       if (order.contract_count <= 1) {
         console.log(
           `Skipping order for market ${order.market_id} due to low contract count (${order.contract_count}).`,
+        );
+        continue;
+      }
+
+      if (order.contract_count >= 25) {
+        console.log(
+          `Skipping order for market ${order.market_id} due to high contract count (${order.contract_count}).`,
         );
         continue;
       }
