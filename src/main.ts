@@ -12,7 +12,7 @@ import type { PromptResponse } from "./getPromptResponse.ts";
 
 export const kalshiAPI = KalshiApi(kalshiConfig);
 
-console.log("Starting Kalshi Earnings Call Bot Started.");
+console.log("Starting Kalshi Earnings Call Bot Started. v2");
 
 const pastProcessedEventTickers: string[] = [
   "kxearningsmentiongoogl-26jun30",
